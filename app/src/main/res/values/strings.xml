@@ -1,0 +1,29 @@
+<resources>
+    <string name="app_name">IMU</string>
+    <string name="patient_id">Patient id</string>
+    <string name="enter_patient_id">Enter patient id</string>
+    <string name="start_assessment">start assessment</string>
+    <string name="Patient_id">Patient ID:</string>
+    <string name="create_id">Create Id</string>
+    <string name="name">Name:</string>
+    <string name="entername">EnterName</string>
+    <string name="age">Age:</string>
+    <string name="enter_age">Enter Age</string>
+    <string name="gender">Gender:</string>
+    <string name="enter_gender">Enter Gender</string>
+    <string name="condition">Condition:</string>
+    <string name="enter_condition_of_patient">Enter condition of patient</string>
+    <string name="Create_id">Create Id</string>
+    <string name="imu">IMU</string>
+    <string name="logo">logo</string>
+    <string name="neck">Neck</string>
+    <string name="shoulder">Shoulder</string>
+    <string name="dashboard">Dashboard</string>
+    <string name="pm">pm</string>
+    <string name="instruction">Instruction</string>
+    <string name="chart">Chart</string>
+    <string name="chart2">chart2</string>
+    <string name="calibrate">calibrate</string>
+    <string name="connect">connect</string>
+    <string name="title_activity_main5">MainActivity5</string>
+</resources>

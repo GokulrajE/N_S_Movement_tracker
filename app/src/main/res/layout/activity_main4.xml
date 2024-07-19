@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity4">
+
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/shadow"
+            android:id="@+id/title1">
+
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="42dp"
+                android:src="@drawable/imu2"
+                android:id="@+id/img"
+                android:contentDescription="@string/logo" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="40dp"
+                android:text="@string/imu"
+                android:textSize="30sp"
+                android:textStyle="bold" />
+
+        </RelativeLayout>
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/title1">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/pic"
+            android:contentDescription="@string/instruction">
+        </ImageView>
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/chart"
+            android:padding="10dp"
+            android:id="@+id/but1">
+
+            <Button
+                android:layout_width="150dp"
+                android:layout_height="match_parent"
+                android:id="@+id/but"
+                android:text="start"
+                android:textSize="20sp"
+                />
+
+
+
+
+        </RelativeLayout>
+
+       <androidx.cardview.widget.CardView
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:id="@+id/displaycard"
+           android:layout_below="@+id/but1"
+           android:layout_marginTop="10dp"
+           android:layout_marginBottom="10dp"
+           app:contentPadding="20dp"
+           app:cardBackgroundColor="#f8f8ff"
+           android:layout_centerInParent="true"
+           app:cardCornerRadius="20dp"
+           >
+           <TextView
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:id="@+id/text1"
+               android:text="movement"
+               android:textAllCaps="true"
+               android:textAlignment="center"
+               android:textColor="#FFC107"
+               android:textSize="20dp"/>
+           <TextView
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:id="@+id/text2"
+               android:textAllCaps="true"
+               android:textSize="15dp"
+               android:textColor="@color/graph"
+               android:layout_marginTop="25dp"
+               android:textAlignment="center"
+               android:text="parts"/>
+           <TextView
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:layout_marginTop="50dp"
+               android:id="@+id/text3"
+               android:textAlignment="gravity"
+               android:textSize="30dp"
+               android:text="Angle"/>
+           <TextView
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:layout_marginTop="80dp"
+               android:layout_marginLeft="0dp"
+               android:text="degree"/>
+
+       </androidx.cardview.widget.CardView>
+
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="389dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:id="@+id/chart"
+            android:layout_marginBottom="20dp"
+            android:layout_below="@id/pic"
+            android:layout_centerHorizontal="true"
+            app:cardCornerRadius="10dp"
+            app:cardElevation="10dp">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/button"
+               >
+
+                <com.github.mikephil.charting.charts.LineChart
+                    android:id="@+id/lineChart"
+                    android:layout_width="match_parent"
+                    android:layout_height="400dp"
+                    />
+            </RelativeLayout>
+
+        </androidx.cardview.widget.CardView>
+                <Button
+                    android:layout_below="@id/displaycard"
+                    android:layout_width="150dp"
+                    android:layout_centerInParent="true"
+                    android:layout_marginBottom="10dp"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/button"
+                    android:id="@+id/clear"
+                    android:text="clear"
+                    android:textSize="20sp"
+                    />
+
+    </RelativeLayout>
+ </ScrollView>
+
+
+
+</RelativeLayout>

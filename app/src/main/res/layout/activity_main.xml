@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:padding="10dp"
+    android:background="#ffffff"
+    tools:context=".MainActivity">
+
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/shadow">
+
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="42dp"
+            android:src="@drawable/imu2"
+            android:id="@+id/img"
+            android:contentDescription="@string/logo" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="40dp"
+            android:text="@string/imu"
+            android:textSize="30sp"
+            android:textStyle="bold" />
+    </RelativeLayout>
+
+
+    <!-- CardView -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_margin="8dp"
+        app:cardCornerRadius="30dp"
+        app:cardElevation="10dp">
+        <!-- Semi-transparent white color -->
+
+        <!-- Inner Layout inside CardView -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/shadow"
+            android:padding="10dp">
+
+            <!-- EditText -->
+            <TextView
+                android:id="@+id/patient_id"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_marginStart="2dp"
+                android:elevation="5dp"
+                android:text="@string/Patient_id"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:transitionName="patient_id" />
+
+            <AutoCompleteTextView
+                android:id="@+id/myEditText"
+                android:layout_width="330dp"
+                android:layout_marginStart="5dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/patient_id"
+                android:layout_centerVertical="true"
+                android:completionThreshold="1"
+                android:hint="@string/enter_patient_id"
+                android:importantForAutofill="yes"
+                android:inputType="textAutoComplete"
+                android:maxLines="1"
+                android:textSize="25sp" />
+            <androidx.cardview.widget.CardView
+                android:layout_width="150dp"
+                android:id="@+id/card1"
+                android:layout_height="50dp"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@id/myEditText"
+                android:layout_marginTop="10dp"
+                app:cardCornerRadius="25dp"
+                app:cardElevation="10dp">
+
+                <Button
+                    android:id="@+id/Create_id"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/button"
+                    android:padding="5dp"
+                    android:text="@string/create_id"
+                    android:textSize="20sp" />
+            </androidx.cardview.widget.CardView>
+            <androidx.cardview.widget.CardView
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:layout_below="@id/card1"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="12dp"
+                app:cardCornerRadius="25dp"
+                app:cardElevation="10dp">
+
+                <Button
+                    android:id="@+id/start_assessment"
+                    android:background="@drawable/button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="start_assessment"
+                    android:textSize="20sp" />
+            </androidx.cardview.widget.CardView>
+        </RelativeLayout>
+    </androidx.cardview.widget.CardView>
+
+    <GridLayout
+        android:id="@+id/gridlayout"
+        android:layout_width="388dp"
+        android:layout_height="55dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="0dp"
+        android:background="@drawable/shadow"
+        android:columnCount="2"
+        android:rowCount="1">
+
+        <ImageView
+            android:id="@+id/myicon"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_marginStart="70dp"
+            android:layout_marginTop="10dp"
+            android:contentDescription="@string/pm"
+            android:onClick="onmyiconClick"
+            android:src="@drawable/patient" />
+
+        <ImageView
+            android:id="@+id/myicon1"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_marginStart="140dp"
+            android:layout_marginTop="8dp"
+            android:contentDescription="@string/dashboard"
+            android:onClick="onmyicon1Click"
+            android:src="@drawable/dashboard" />
+
+
+    </GridLayout>
+
+
+</RelativeLayout>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Shadow shape -->
+    <item android:id="@+id/my_shadow">
+        <shape android:shape="rectangle">
+            <solid android:color="#FBFBFD" /> <!-- Shadow color (e.g., red) -->
+            <corners android:radius="8dp" /> <!-- Same corner radius as background -->
+        </shape>
+    </item>
+</layer-list>
