@@ -76,7 +76,6 @@ public class MainActivity3 extends AppCompatActivity {
     BroadcastReceiver broadcastReceiver;
     List<short[]> calibrationData;
     private String receivedData;
-    private boolean session;
     boolean isconnected = false;
     TextView lastcalibrated;
     boolean isReceiverRegistered;
@@ -84,9 +83,16 @@ public class MainActivity3 extends AppCompatActivity {
     Button calibrate;
     LineData lineData;
     Button startprogress;
+    private static  final int Calibaration_data_size = 2500;
     private LineChart lineChart;
     boolean ToUpdate;
     CardView chart;
+    float gxsum=0;
+    float gysum=0;
+    float gzsum=0;
+    float meanx=0;
+    float meany=0;
+    float meanz=0;
     private static final int CHART_UPDATE_BUFFER_SIZE = 100;
     private LineDataSet lineDataSet1;
     private LineDataSet lineDataSet2;
@@ -312,7 +318,6 @@ public class MainActivity3 extends AppCompatActivity {
             chartDataBuffer1.add(new Entry(mxvalue, gx));
             chartDataBuffer2.add(new Entry(mxvalue, gy));
             chartDataBuffer3.add(new Entry(mxvalue, gz));
-
             mxvalue++;
             updateChart();
         }
@@ -353,16 +358,54 @@ public class MainActivity3 extends AppCompatActivity {
         }
     private void Receiveddata(short[] data){
       if(Tocalibrate){
-
+          float gx = data[0];
+          float gy = data[1];
+          float gz = data[2];
+          float x = (float) (gx/65.5);
+          float y = (float) (gy/65.5);
+          float z = (float) (gz/65.5);
+          gxsum += x * x;
+          meanx += x;
+          gysum += y * y;
+          meany += y;
+          gzsum += z * z;
+          meanz += z;
+          calibrationData.add(data);
           ToUpdate = true;
           ReceiveData(data);
-          calibrationData.add(data);
-          if(calibrationData.size()>=2500){
-              calculateAndStoreCalibrationData(calibrationData,selectedDevice.getAddress());
+          if(calibrationData.size()==Calibaration_data_size) {
+              float P_M_gx = meanx / Calibaration_data_size;
+              float P_M_gy = meany / Calibaration_data_size;
+              float P_M_gz = meanz / Calibaration_data_size;
+              float sdx = (gxsum / Calibaration_data_size) - (P_M_gx * P_M_gx);
+              float sdy = (gysum / Calibaration_data_size) - (P_M_gy * P_M_gy);
+              float sdz = (gzsum / Calibaration_data_size) - (P_M_gz * P_M_gz);
+              float max = Math.max(Math.max(sdx, sdy), sdz);
+              if (max < 1) {
+                  calculateAndStoreCalibrationData(calibrationData,selectedDevice.getAddress());
+              }else{
+                  runOnUiThread(new Runnable() {
+                      @Override
+                      public void run() {
+                          showToast("Calibration failed");
+                          calibrate.setText("start calibration");
+                          lineChart.clear();
+                          lineData.clearValues();
+                          chartEntries1.clear();
+                          chartEntries2.clear();
+                          chartEntries3.clear();
+                      }
+                  });
+              }
+              calibrationData.clear();
+              gxsum = 0;
+              meanx = 0;
+              gysum = 0;
+              meany = 0;
+              gzsum = 0;
+              meanz = 0;
               Tocalibrate = false;
               ToUpdate=false;
-              calibrationData.clear();
-
           }
       }
     }
@@ -457,9 +500,9 @@ public class MainActivity3 extends AppCompatActivity {
             sumGz += data[2];
         }
 
-        float meanGx = sumGx / 2500.0f;
-        float meanGy = sumGy / 2500.0f;
-        float meanGz = sumGz / 2500.0f;
+        float meanGx = (float) sumGx / calibrationData.size();
+        float meanGy = (float) sumGy / calibrationData.size();
+        float meanGz = (float) sumGz / calibrationData.size();
 
         JSONObject jsonObject = new JSONObject();
         try {
@@ -486,7 +529,6 @@ public class MainActivity3 extends AppCompatActivity {
                 System.out.println("calibrated data");
                 System.out.println(jsonString);
             }
-
             runOnUiThread(() -> {
                 showToast("Calibration completed successfully");
                 last_calibrated_data(selectedDevice.getAddress());

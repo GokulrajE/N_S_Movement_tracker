@@ -29,7 +29,6 @@ public class menuActivity extends AppCompatActivity {
         setContentView(R.layout.activity_menu);
         ViewGroup rootLayout = findViewById(R.id.main);
         Intent intent = getIntent();
-
         // Check if the intent has the extra data
         if (intent != null && intent.hasExtra("selectedData")) {
             // Extract the data
@@ -57,7 +56,6 @@ public class menuActivity extends AppCompatActivity {
                 }
             }
         });
-
         shoulderTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -72,18 +70,17 @@ public class menuActivity extends AppCompatActivity {
                 }
             }
         });
-        handleOptionClick(optionsViewNeck, R.id.option1, 1);
-        handleOptionClick(optionsViewNeck, R.id.option2, 2);
-        handleOptionClick(optionsViewNeck, R.id.option3, 3);
+        handleOptionClick(optionsViewNeck,R.id.option1, 1);
+        handleOptionClick(optionsViewNeck,R.id.option2, 2);
+        handleOptionClick(optionsViewNeck,R.id.option3, 3);
         handleOptionClick(optionsViewNeck,R.id.option4,4);
         handleOptionClick(optionsViewNeck,R.id.option5,5);
         handleOptionClick(optionsViewNeck,R.id.option6,6);
-
         // Handle clicks for options inside the shoulder inflated layout
-        handleOptionClick(optionsViewShoulder, R.id.option7, 7);
-        handleOptionClick(optionsViewShoulder, R.id.option8, 8);
-        handleOptionClick(optionsViewShoulder, R.id.option9, 9);
-        handleOptionClick(optionsViewShoulder, R.id.option10, 10);
+        handleOptionClick(optionsViewShoulder,R.id.option7, 7);
+        handleOptionClick(optionsViewShoulder,R.id.option8, 8);
+        handleOptionClick(optionsViewShoulder,R.id.option9, 9);
+        handleOptionClick(optionsViewShoulder,R.id.option10, 10);
 
         // Set a touch listener on the root layout to hide the options view
         rootLayout.setOnTouchListener(new View.OnTouchListener() {
@@ -100,9 +97,6 @@ public class menuActivity extends AppCompatActivity {
                 return false;
             }
         });
-
-
-
     }
     private void showOptions(RelativeLayout parentLayout, View optionsView, int anchorId) {
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
@@ -112,7 +106,6 @@ public class menuActivity extends AppCompatActivity {
         params.addRule(RelativeLayout.BELOW, anchorId);
         parentLayout.addView(optionsView, params);
     }
-
     // Method to handle option clicks
     private void handleOptionClick(View optionsView, int optionId, final int selectedOption) {
         TextView option = optionsView.findViewById(optionId);

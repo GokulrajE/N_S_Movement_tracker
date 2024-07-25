@@ -8,8 +8,6 @@
     android:background="#ffffff"
     tools:context=".MainActivity">
 
-
-
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -114,40 +112,22 @@
             </androidx.cardview.widget.CardView>
         </RelativeLayout>
     </androidx.cardview.widget.CardView>
-
-    <GridLayout
-        android:id="@+id/gridlayout"
-        android:layout_width="388dp"
-        android:layout_height="55dp"
-        android:layout_alignParentBottom="true"
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+       android:layout_below="@id/cardView"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="0dp"
-        android:background="@drawable/shadow"
-        android:columnCount="2"
-        android:rowCount="1">
+        android:layout_marginTop="12dp"
+        app:cardCornerRadius="25dp"
+        app:cardElevation="10dp">
 
-        <ImageView
-            android:id="@+id/myicon"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:layout_marginStart="70dp"
-            android:layout_marginTop="10dp"
-            android:contentDescription="@string/pm"
-            android:onClick="onmyiconClick"
-            android:src="@drawable/patient" />
-
-        <ImageView
-            android:id="@+id/myicon1"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:layout_marginStart="140dp"
-            android:layout_marginTop="8dp"
-            android:contentDescription="@string/dashboard"
-            android:onClick="onmyicon1Click"
-            android:src="@drawable/dashboard" />
-
-
-    </GridLayout>
-
+    <Button
+        android:id="@+id/review"
+        android:background="@drawable/button"
+        android:layout_width="match_parent"
+        android:text="Review"
+        android:layout_height="match_parent"
+        android:textSize="20sp" />
+    </androidx.cardview.widget.CardView>
 
 </RelativeLayout>

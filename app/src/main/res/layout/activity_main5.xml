@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:padding="10dp"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".menuActivity">
+    tools:context=".review">
     <RelativeLayout
+        android:layout_marginTop="20dp"
+        android:id="@+id/title1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/shadow"
-        android:id="@+id/title1">
+        android:background="@drawable/shadow">
 
         <ImageView
             android:layout_width="40dp"
@@ -29,33 +29,57 @@
             android:textSize="30sp"
             android:textStyle="bold" />
     </RelativeLayout>
-
+    <androidx.cardview.widget.CardView
+        android:layout_marginTop="10dp"
+        android:id="@+id/subject_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/title1"
+        app:cardBackgroundColor="@color/my_button_color1"
+        app:cardCornerRadius="5dp"
+        app:contentPadding="10dp"
+        >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/name"
+            android:text="subject_name"
+            android:textSize="18dp"
+            android:textColor="#E9E2F6"
+            />
+    </androidx.cardview.widget.CardView>
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/title1"
+        android:layout_below="@id/subject_name"
         android:id="@+id/partsmenu"
         android:background="@drawable/shadow"
         android:layout_marginTop="20dp"
         android:padding="10dp"
         >
+
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/neck1"
-            >
+            android:id="@+id/neck1">
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/neck"
-                android:elevation="@dimen/cardview_default_radius"
                 android:background="#C3C8C8"
                 android:text="@string/neck"
                 android:textSize="30sp"
                 android:textStyle="bold"
-                android:textAlignment="center"
-               />
+                android:textAlignment="center" />
+            <LinearLayout
+                android:layout_below="@id/neck"
+                android:id="@+id/menuLayoutn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:orientation="vertical" />
         </RelativeLayout>
+
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -69,15 +93,18 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/shoulder"
                 android:background="#C3C8C8"
-                android:elevation="@dimen/cardview_default_radius"
                 android:text="@string/shoulder"
                 android:textSize="30sp"
                 android:textStyle="bold"
                 android:textAlignment="center"/>
+            <LinearLayout
+                android:layout_below="@id/shoulder"
+                android:id="@+id/menuLayouts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:orientation="vertical" />
         </RelativeLayout>
-
     </RelativeLayout>
-
-
 
 </RelativeLayout>

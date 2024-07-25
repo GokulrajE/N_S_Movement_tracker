@@ -284,7 +284,7 @@ public class MainActivity4 extends AppCompatActivity {
         YAxis leftAxis = lineChart.getAxisLeft();
         leftAxis.setDrawGridLines(false);
         leftAxis.setAxisMinimum(0f);
-       leftAxis.setAxisMaximum(360f);
+       leftAxis.setAxisMaximum(200f);
         YAxis rightAxis = lineChart.getAxisRight();
         rightAxis.setEnabled(false);
         rightAxis.setDrawGridLines(false);

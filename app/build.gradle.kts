@@ -64,6 +64,7 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+    implementation ("com.github.AnyChart:AnyChart-Android:1.1.5")
     implementation("androidx.cardview:cardview:1.0.0")
     implementation ("com.github.PhilJay:MPAndroidChart:v3.1.0")
     implementation ("org.apache.commons:commons-math3:3.6.1")

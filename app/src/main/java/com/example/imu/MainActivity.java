@@ -8,11 +8,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.Settings;
-import android.se.omapi.Session;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -25,20 +25,22 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
 
     public static int session_number;
     private AutoCompleteTextView autoCompleteTextViewUniqueId;
-    private List<String> fileNames = new ArrayList<>();
+    private List<String> Ids = new ArrayList<>();
     private ArrayAdapter<String> adapterUniqueId;
     private Button saveButton;
     private String selectedUniqueId;
-
+    List<String> menu_N;
+    List<String> menu_S;
+    private Button reviewbutton;
     private Button assessment;
     public static final int YOUR_REQUEST_CODE = 0;
 
@@ -58,13 +60,15 @@ public class MainActivity extends AppCompatActivity {
         autoCompleteTextViewUniqueId = findViewById(R.id.myEditText);
         saveButton = findViewById(R.id.Create_id);
         assessment = findViewById(R.id.start_assessment);
-
-        fileNames = new ArrayList<>();
+        reviewbutton = findViewById(R.id.review);
+        menu_N = new ArrayList<>();
+        menu_S = new ArrayList<>();
+        Ids = new ArrayList<>();
 
         // Read uniqueIds from idfile.csv and populate suggestions
         readUniqueIdFromFile();
 
-        adapterUniqueId = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, fileNames);
+        adapterUniqueId = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, Ids);
         autoCompleteTextViewUniqueId.setAdapter(adapterUniqueId);
 
         autoCompleteTextViewUniqueId.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -72,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 // Handle item selection (if needed)
                 selectedUniqueId = adapterView.getItemAtPosition(position).toString();
+                closeKeyboard();
                 // Uncomment the next line if you want to read data when an item is selected
                 // readDataFromJson(selectedUniqueId);
                 //sendDataToActivity(selectedUniqueId);
@@ -115,14 +120,14 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 try {
                     // Check if selectedUniqueId is not null
-                    if (selectedUniqueId != null) {
+                    if (Ids.contains(selectedUniqueId)) {
                         // Send data to MainActivity3
                         sendDataToActivity(selectedUniqueId);
                         autoCompleteTextViewUniqueId.getText().clear();
                         session();
                     } else {
                         // Handle case where selectedUniqueId is null
-                        Toast.makeText(MainActivity.this, "Please select a unique ID", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "Please select a valid unique ID", Toast.LENGTH_SHORT).show();
                     }
                 } catch (NullPointerException e) {
                     e.printStackTrace();
@@ -130,7 +135,20 @@ public class MainActivity extends AppCompatActivity {
             }
 
         });
+        reviewbutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+             if(Ids.contains(selectedUniqueId)){
+                 getAssessmentData();
+
+             }
+             else{
+                 Toast.makeText(MainActivity.this, "Please select a valid unique ID", Toast.LENGTH_SHORT).show();
+             }
+            }
+        });
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -157,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
 
             while ((line = bufferedReader.readLine()) != null) {
                 // Add each uniqueId to the suggestions list
-                fileNames.add(line);
+                Ids.add(line);
             }
 
             bufferedReader.close();
@@ -173,10 +191,10 @@ public class MainActivity extends AppCompatActivity {
     }
     private void setupAutoCompleteTextView() {
         autoCompleteTextViewUniqueId.setAdapter(null); // Clear the existing adapter
-        fileNames.clear(); // Clear the existing list
+        Ids.clear(); // Clear the existing list
         // Read uniqueIds from idfile.csv and populate suggestions
         readUniqueIdFromFile();
-        adapterUniqueId = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, fileNames);
+        adapterUniqueId = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, Ids);
         autoCompleteTextViewUniqueId.setAdapter(adapterUniqueId);
         adapterUniqueId.notifyDataSetChanged();
     }
@@ -186,8 +204,6 @@ public class MainActivity extends AppCompatActivity {
             String dirname = selectedUniqueId.substring(0, 7);
             File dirnameFolder = new File(mainFolder, dirname);
             File AssesmentFile = new File(dirnameFolder,"Assessment.csv");
-
-
             if (AssesmentFile.exists()) {
               readSessionNumber(AssesmentFile);
 
@@ -226,6 +242,71 @@ public void readSessionNumber(File AssessmentFile){
         Toast.makeText(this, "Error reading CSV file: " + e.getMessage(), Toast.LENGTH_SHORT).show();
     }
 }
+    public void getAssessmentData(){
+        new Thread(()->{
+            File mainFolder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "imupatientdata");
+            String dirname = selectedUniqueId.substring(0, 7);
+            File dirnameFolder = new File(mainFolder, dirname);
+            File AssesmentFile = new File(dirnameFolder,"Assessment.csv");
+            System.out.println(dirname);
+            if (AssesmentFile.exists()) {
+                try  {
+                    BufferedReader bufferedReader = new BufferedReader(new FileReader(AssesmentFile));
+                    String line;
+                    boolean check_parts_N;
+                    boolean check_parts_S;
+
+                    while ((line = bufferedReader.readLine()) != null) {
+                        // Add each uniqueId to the suggestions list
+                        String [] parts = line.split(",");
+                        String [] type = parts[2].split("/");
+                        String part = type[0];
+                        String movement = type[1];
+                        check_parts_N = part.equals("neck");
+                        check_parts_S = part.equals("shoulder");
+                        if(check_parts_N){
+                            if(!menu_N.contains(movement))
+                                menu_N.add(movement);
+                        } else if (check_parts_S) {
+                            if(!menu_S.contains(movement))
+                                menu_S.add(movement);
+
+                        }
+
+                    }
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (!menu_N.isEmpty() || !menu_S.isEmpty()) {
+                                review(selectedUniqueId, menu_N, menu_S);
+                                menu_S.clear();
+                                menu_N.clear();
+                            }else{
+                                Toast.makeText(getApplicationContext(),"New_user",Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+
+                    bufferedReader.close();
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Toast.makeText(this, "Error reading CSV file: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+
+            }
+            else{
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getApplicationContext(),"New_user",Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+            }
+        }).start();
+    }
+
 
 
 public void sendDataToActivity(String data) {
@@ -234,12 +315,18 @@ public void sendDataToActivity(String data) {
 
         startActivity(intent);
     }
-    public void onmyiconClick(View view){
-        Intent intent=new Intent(this, MainActivity.class);
+    public void review(String data, List<String> meanu_n, List<String> meanu_s){
+        Intent intent=new Intent(this, review.class);
+        intent.putExtra("selectedData", data);
+        intent.putStringArrayListExtra("neckData", (ArrayList<String>) meanu_n);
+        intent.putStringArrayListExtra("shoulderData", (ArrayList<String>) meanu_s);
         startActivity(intent);
     }
-    public void onmyicon1Click(View view){
-        Intent intent=new Intent(this, MainActivity.class);
-        startActivity(intent);
+    private void closeKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+        if (imm != null && getCurrentFocus() != null) {
+            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+        }
     }
+
 }
