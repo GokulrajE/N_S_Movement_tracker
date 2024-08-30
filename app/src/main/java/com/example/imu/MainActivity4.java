@@ -113,20 +113,22 @@ public class MainActivity4 extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main4);
-
         gyroProcessor = new GyroProcessor();
         calibrationData = new ArrayList<>();
         Intent intent = getIntent();
         toneGenerator = new ToneGenerator(AudioManager.STREAM_MUSIC, 100);
-
         broadcastReceiver = new BroadcastReceiver(){
             @Override
             public void onReceive(Context context, Intent intent) {
 
                 if("sendData".equals(intent.getAction())){
                     short[] data = intent.getShortArrayExtra("data");
+                    Long time = intent.getLongExtra("time",0);
 //                    Log.d(TAG,"received data"+Arrays.toString(data));
-                    ReceiveData(data);
+//                    System.out.println(time);
+                    Log.d(TAG,"received time"+time);
+
+                    ReceiveData(data,time);
                 }
 
             }
@@ -212,7 +214,7 @@ public class MainActivity4 extends AppCompatActivity {
 
         ImageView imageView = findViewById(R.id.pic);
         imageView.setImageResource(imageResource);
-        sessionNumber = MainActivity.session_number;
+       sessionNumber = MainActivity.session_number;
         Button start_stop = findViewById(R.id.but);
         start_stop.setBackgroundColor(Color.rgb(76,175,80));
 //        Button stop = findViewById(R.id.stop);
@@ -309,13 +311,13 @@ public class MainActivity4 extends AppCompatActivity {
 
 
     float mxvalue=0;
-   private void ReceiveData(short[] data){
+   private void ReceiveData(short[] data,long time){
        if(ToUpdate){
            float gx = data[0];
            float gy = data[1];
            float gz = data[2];
 
-           float gyroAng = gyroProcessor.rom(data, offset);
+           float gyroAng = gyroProcessor.rom(data, offset,time);
            if(ToCalibrate) {
                float x = (float) (gx/65.5);
                float y = (float) (gy/65.5);

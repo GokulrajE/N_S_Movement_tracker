@@ -7,6 +7,7 @@ public class GyroProcessor {
     private double[] qInt = {1, 0, 0, 0};  // Initial quaternion (identity quaternion)
     private static final double DEG_TO_RAD = Math.PI / 180;
     private static final double RAD_TO_DEG = 180 / Math.PI;
+    private long Previous_time = 0;
 
     public double[] quaternionMultiply(double[] quaternion1, double[] quaternion0) {
         double w0 = quaternion0[0], x0 = quaternion0[1], y0 = quaternion0[2], z0 = quaternion0[3];
@@ -21,16 +22,25 @@ public class GyroProcessor {
     }
     public void setupQInt(){
         qInt = new double[]{1, 0, 0, 0};  // Initial quaternion (identity quaternion)
+        Previous_time = 0;
     }
 
-    public float rom(short[] data, double[] offset) {
+    public float rom(short[] data, double[] offset,Long time) {
         double[] doubleData = new double[data.length];
+        double delT;
         for (int i = 0; i < data.length; i++) {
             doubleData[i] = (double) data[i];
         }
 
         double[] gyro = Arrays.copyOfRange(doubleData, 0, 3);
-        double delT = doubleData[3] / 1000000.0;  // Convert microseconds to seconds
+        if(Previous_time == 0){
+            delT = 1;
+        }
+        else{
+            delT = (time-Previous_time)/ 1000000.0;  // Convert microseconds to seconds
+        }
+        Previous_time = time;
+//        double delT = doubleData[3] / 1000000.0;  // Convert microseconds to seconds
 
         for (int i = 0; i < gyro.length; i++) {
             gyro[i] = (gyro[i]  - offset[i])/65.5;

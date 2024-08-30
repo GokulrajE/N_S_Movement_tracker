@@ -4,8 +4,10 @@ import static android.content.ContentValues.TAG;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.Manifest;
 import android.os.Environment;
 import android.provider.Settings;
 import android.text.Editable;
@@ -19,8 +21,11 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -43,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
     private Button reviewbutton;
     private Button assessment;
     public static final int YOUR_REQUEST_CODE = 0;
+    private static final int PERMISSIONS_REQUEST_CODE = 100;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +60,9 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
                 startActivity(intent);
             }
+        }
+        if (!hasPermissions()) {
+            requestPermissions();
         }
         FileHandling filehandler = new FileHandling();
         filehandler.createCSVFile();
@@ -138,17 +147,52 @@ public class MainActivity extends AppCompatActivity {
         reviewbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-             if(Ids.contains(selectedUniqueId)){
-                 getAssessmentData();
+                if(Ids.contains(selectedUniqueId)){
+                    getAssessmentData();
 
-             }
-             else{
-                 Toast.makeText(MainActivity.this, "Please select a valid unique ID", Toast.LENGTH_SHORT).show();
-             }
+                }
+                else{
+                    Toast.makeText(MainActivity.this, "Please select a valid unique ID", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
+    private boolean hasPermissions() {
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED;
+    }
+    private void requestPermissions() {
+        ActivityCompat.requestPermissions(this,
+                new String[]{
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.BLUETOOTH_CONNECT,
+                        Manifest.permission.BLUETOOTH_SCAN
+                },
+                PERMISSIONS_REQUEST_CODE
+        );
+    }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSIONS_REQUEST_CODE) {
+            boolean allPermissionsGranted = true;
+            for (int result : grantResults) {
+                if (result != PackageManager.PERMISSION_GRANTED) {
+                    allPermissionsGranted = false;
+                    break;
+                }
+            }
+            if (allPermissionsGranted) {
+                // Permissions granted, proceed with your functionality
+                Toast.makeText(this, "Permission Granted", Toast.LENGTH_SHORT).show();
+            } else {
+                // Permissions not granted, handle the case
+                Toast.makeText(this, "App requires permission please allow", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -205,7 +249,7 @@ public class MainActivity extends AppCompatActivity {
             File dirnameFolder = new File(mainFolder, dirname);
             File AssesmentFile = new File(dirnameFolder,"Assessment.csv");
             if (AssesmentFile.exists()) {
-              readSessionNumber(AssesmentFile);
+                readSessionNumber(AssesmentFile);
 
             }
             else{
@@ -217,31 +261,27 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
             }
-
-
         }).start();
     }
-public void readSessionNumber(File AssessmentFile){
-    try {
-        BufferedReader bufferedReader = new BufferedReader(new FileReader(AssessmentFile));
-        String line;
+    public void readSessionNumber(File AssessmentFile){
+        try {
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(AssessmentFile));
+            String line;
 
-        session_number = 1;
-        while ((line = bufferedReader.readLine()) != null) {
-            // Add each uniqueId to the suggestions list
-            String lastline = line;
-            String [] parts = lastline.split(",");
-            session_number = Integer.parseInt(parts[0])+1;
+            session_number = 1;
+            while ((line = bufferedReader.readLine()) != null) {
+                // Add each uniqueId to the suggestions list
+                String lastline = line;
+                String [] parts = lastline.split(",");
+                session_number = Integer.parseInt(parts[0])+1;
+            }
+            bufferedReader.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Error reading CSV file: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
-
-
-        bufferedReader.close();
-
-    } catch (IOException e) {
-        e.printStackTrace();
-        Toast.makeText(this, "Error reading CSV file: " + e.getMessage(), Toast.LENGTH_SHORT).show();
     }
-}
     public void getAssessmentData(){
         new Thread(()->{
             File mainFolder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "imupatientdata");
@@ -309,7 +349,7 @@ public void readSessionNumber(File AssessmentFile){
 
 
 
-public void sendDataToActivity(String data) {
+    public void sendDataToActivity(String data) {
         Intent intent = new Intent(this, MainActivity3.class);
         intent.putExtra("selectedData", data);
 

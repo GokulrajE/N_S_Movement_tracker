@@ -53,18 +53,16 @@ import java.util.Objects;
 import java.util.Set;
 
 public class review extends AppCompatActivity {
-
      private String receivedData;
      LinearLayout menuLayout_s;
-    LinearLayout menuLayout_N;
+     LinearLayout menuLayout_N;
      List<String> menu_N;
      List<String> menu_S;
      Boolean newSessionN  = true;
-    Boolean newSessionS = true;
+     Boolean newSessionS = true;
      Boolean isMenuVisiblen = false;
-    Boolean isMenuVisibles = false;
+     Boolean isMenuVisibles = false;
      String [] menu;
-
      RelativeLayout parentLayoutNeck;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,7 +96,6 @@ public class review extends AppCompatActivity {
             }
             Log.d("menuactivity", "Selected data: " + receviedlists);
         }
-
         menuLayout_N = findViewById(R.id.menuLayoutn);
         menuLayout_s = findViewById(R.id.menuLayouts);
         TextView neckTextView = findViewById(R.id.neck);
@@ -124,7 +121,6 @@ public class review extends AppCompatActivity {
                     openMenu(menuLayout_N);
                     isMenuVisiblen = true;
                 }
-
             }
         });
         shoulderTextView.setOnClickListener(new View.OnClickListener() {
@@ -147,7 +143,6 @@ public class review extends AppCompatActivity {
                         }
             }
         });
-
 
     }
     private void closeMenu(LinearLayout menulayout) {

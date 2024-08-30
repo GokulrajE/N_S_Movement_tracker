@@ -5,8 +5,13 @@ import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.bluetooth.le.BluetoothLeScanner;
+import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanResult;
+import android.bluetooth.le.ScanSettings;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -44,6 +49,7 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 
+import org.apache.commons.math3.analysis.function.Add;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -60,18 +66,16 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 public class MainActivity3 extends AppCompatActivity {
-
     private static final String TAG = "MainActivity3";
-
     private static final int REQUEST_ENABLE_BT = 1;
     private static final int REQUEST_PERMISSIONS = 2;
-
     private BluetoothAdapter bluetoothAdapter;
+    private BluetoothLeScanner bluetoothLeScanner;
     private static BluetoothDevice selectedDevice;
-
     private ArrayList<BluetoothDevice> deviceList = new ArrayList<>();
     private ArrayAdapter<String> bluetoothArrayAdapter;
     private AlertDialog alertDialog;
+    private ArrayAdapter<String> arrayAdapter;
     boolean Tocalibrate;
     BroadcastReceiver broadcastReceiver;
     List<short[]> calibrationData;
@@ -79,20 +83,21 @@ public class MainActivity3 extends AppCompatActivity {
     boolean isconnected = false;
     TextView lastcalibrated;
     boolean isReceiverRegistered;
+    List<String> bleAddress;
     Button connect;
     Button calibrate;
     LineData lineData;
     Button startprogress;
-    private static  final int Calibaration_data_size = 2500;
+    private static final int Calibaration_data_size = 2500;
     private LineChart lineChart;
     boolean ToUpdate;
     CardView chart;
-    float gxsum=0;
-    float gysum=0;
-    float gzsum=0;
-    float meanx=0;
-    float meany=0;
-    float meanz=0;
+    float gxsum = 0;
+    float gysum = 0;
+    float gzsum = 0;
+    float meanx = 0;
+    float meany = 0;
+    float meanz = 0;
     private static final int CHART_UPDATE_BUFFER_SIZE = 100;
     private LineDataSet lineDataSet1;
     private LineDataSet lineDataSet2;
@@ -103,49 +108,42 @@ public class MainActivity3 extends AppCompatActivity {
     private List<Entry> chartDataBuffer1 = new ArrayList<>();
     private List<Entry> chartDataBuffer2 = new ArrayList<>();
     private List<Entry> chartDataBuffer3 = new ArrayList<>();
-
+    public String Address;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main3);
-
-         calibrationData = new ArrayList<>();
-
-
+        calibrationData = new ArrayList<>();
+//        bleDevices = new ArrayList<>();
+        arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
+        bleAddress = new ArrayList<>();
         Intent intent = getIntent();
-
         // Check if the intent has the extra data
         if (intent != null && intent.hasExtra("selectedData")) {
             // Extract the data
             receivedData = intent.getStringExtra("selectedData");
             Log.d("menuactivity", "Selected data: " + receivedData);
         }
-
         // Initialize TextViews after setting the content view
         chart = findViewById(R.id.chart);
-         connect = findViewById(R.id.connect);
+        connect = findViewById(R.id.connect);
         calibrate = findViewById(R.id.calibrate);
 
         lastcalibrated = findViewById(R.id.lastcalibrated);
 
-         startprogress = findViewById(R.id.startprogress);
-         startprogress.setVisibility(View.GONE);
-         setup();
-
-
-
+        startprogress = findViewById(R.id.startprogress);
+        startprogress.setVisibility(View.GONE);
+        setup();
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         bluetoothArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
         if (bluetoothAdapter == null) {
             Toast.makeText(this, "Bluetooth not supported", Toast.LENGTH_SHORT).show();
             return;
         }
-
         if (!bluetoothAdapter.isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
                     ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
@@ -161,7 +159,7 @@ public class MainActivity3 extends AppCompatActivity {
                                 android.Manifest.permission.BLUETOOTH_ADMIN
                         }, REQUEST_PERMISSIONS);
             } else {
-               checkLocationServicesAndStartDiscovery();
+                checkLocationServicesAndStartDiscovery();
             }
         } else {
             if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
@@ -172,33 +170,28 @@ public class MainActivity3 extends AppCompatActivity {
                                 Manifest.permission.ACCESS_COARSE_LOCATION
                         }, REQUEST_PERMISSIONS);
             } else {
-               checkLocationServicesAndStartDiscovery();
+                checkLocationServicesAndStartDiscovery();
             }
         }
-        broadcastReceiver = new BroadcastReceiver(){
+        broadcastReceiver = new BroadcastReceiver() {
 
             @Override
             public void onReceive(Context context, Intent intent) {
-                if(BluetoothService.BLUETOOTH_CONNECTED.equals(intent.getAction())){
-                   connect.setText("CONNECTED");
-                   connect.setTextSize(18f);
-                   connect.setBackgroundColor(Color.rgb(76,175,80));
-                   isconnected = true;
-
+                if (BluetoothService.BLUETOOTH_CONNECTED.equals(intent.getAction())) {
+                    connect.setText("CONNECTED");
+                    connect.setTextSize(18f);
+                    connect.setBackgroundColor(Color.rgb(76, 175, 80));
+                    isconnected = true;
 
                 } else if (BluetoothService.BLUETOOTH_DISCONNECTED.equals(intent.getAction())) {
                     connect.setText("DISCONNECTED");
                     connect.setTextSize(13f);
                     connect.setBackgroundColor(Color.RED);
                     isconnected = false;
-
-                }
-                else if ("sendData".equals(intent.getAction())) {
+                } else if ("sendData".equals(intent.getAction())) {
                     short[] data = intent.getShortArrayExtra("data");
-//                    Log.d(TAG,"received data"+Arrays.toString(data));
-                    Receiveddata(data);
-
-
+//                   Log.d(TAG,"received data"+Arrays.toString(data));
+                   Receiveddata(data);
                 }
 
             }
@@ -208,13 +201,39 @@ public class MainActivity3 extends AppCompatActivity {
         filter.addAction(BluetoothService.BLUETOOTH_DISCONNECTED);
         filter.addAction("sendData");
         filter.addAction("session");
-        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver,filter);
+        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, filter);
 
         connect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(!isconnected){
+                if (!isconnected) {
                     checkLocationServicesAndStartDiscovery();
+                    // Set up AlertDialog to show BLE device names
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity3.this);
+                    builder.setTitle("BLE Devices");
+                    builder.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int position) {
+                            // Handle item click if needed
+                            System.out.println(bleAddress.get(position));
+                            if (ActivityCompat.checkSelfPermission(MainActivity3.this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
+                                return;
+                            }
+//                            bluetoothLeScanner.stopScan(scanCallback);
+                            Intent intent = new Intent(MainActivity3.this, BluetoothService.class);
+                            intent.putExtra("device_address", bleAddress.get(position));
+                            Address = bleAddress.get(position);
+                            startService(intent);
+                            connect.setText("connecting..");
+                            connect.setTextSize(13f);
+                            last_calibrated_data(Address);
+//                              startService()
+//                            BluetoothDevice selectedDevice = bleDevices.get(position);
+//                            connectToDevice(selectedDevice);
+                        }
+                    });
+
+                    builder.show();
                 }
                 else{
                     showToast("Already connected");
@@ -228,8 +247,8 @@ public class MainActivity3 extends AppCompatActivity {
             public void onClick(View view) {
                 if(isconnected) {
                     Tocalibrate = true;
+                    startprogress.setVisibility(View.GONE);
                     chart.setVisibility(View.VISIBLE);
-
                     calibrate.setText("CALIBRATING..");
                 }
                 else {
@@ -243,8 +262,6 @@ public class MainActivity3 extends AppCompatActivity {
                 startMenuActivity();
             }
         });
-
-
 
     }
     private void startMenuActivity() {
@@ -331,7 +348,6 @@ public class MainActivity3 extends AppCompatActivity {
                     chartDataBuffer1.clear();
                     chartDataBuffer2.clear();
                     chartDataBuffer3.clear();
-
                     chartEntries1.addAll(newEntries1);
                     chartEntries2.addAll(newEntries2);
                     chartEntries3.addAll(newEntries3);
@@ -339,7 +355,6 @@ public class MainActivity3 extends AppCompatActivity {
                     lineDataSet2 = new LineDataSet(chartEntries2, "gY Data");
                     lineDataSet3 = new LineDataSet(chartEntries3, "gZ Data");
                     lineData = new LineData(lineDataSet1,lineDataSet2,lineDataSet3);
-
                     lineDataSet1.setLineWidth(2);
                     lineDataSet1.setDrawCircles(false);
                     lineDataSet1.setColor(Color.RED);
@@ -350,7 +365,6 @@ public class MainActivity3 extends AppCompatActivity {
                     lineDataSet3.setDrawCircles(false);
                     lineDataSet3.setColor(Color.GREEN);
                     lineChart.setData(lineData);
-
                     lineChart.invalidate();
                 });
             }
@@ -382,7 +396,7 @@ public class MainActivity3 extends AppCompatActivity {
               float sdz = (gzsum / Calibaration_data_size) - (P_M_gz * P_M_gz);
               float max = Math.max(Math.max(sdx, sdy), sdz);
               if (max < 1) {
-                  calculateAndStoreCalibrationData(calibrationData,selectedDevice.getAddress());
+                  calculateAndStoreCalibrationData(calibrationData,Address);
               }else{
                   runOnUiThread(new Runnable() {
                       @Override
@@ -443,9 +457,51 @@ public class MainActivity3 extends AppCompatActivity {
                     .setNegativeButton("Cancel", null)
                     .show();
         } else {
-            startBluetoothDiscovery();
+//            startBluetoothDiscovery();
+            startBleScan();
+
         }
     }
+    private void startBleScan() {
+        bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
+        if (bluetoothLeScanner != null) {
+            ScanSettings settings = new ScanSettings.Builder()
+                    .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+                    .build();
+
+            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+            bluetoothLeScanner.startScan(null, settings, scanCallback);
+        } else {
+            Log.e("BLE", "BluetoothLeScanner is null");
+        }
+    }
+    private ScanCallback scanCallback = new ScanCallback() {
+        @Override
+        public void onScanResult(int callbackType, ScanResult result) {
+            super.onScanResult(callbackType, result);
+
+            BluetoothDevice newDevice = result.getDevice();
+            if (newDevice != null && !deviceList.contains(newDevice)) {
+                deviceList.add(newDevice);
+                if (ActivityCompat.checkSelfPermission(MainActivity3.this, android.Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                    return;
+                }
+                String devicename = newDevice.getName();
+
+                if (devicename != null) {
+                    arrayAdapter.add(newDevice.getName());
+                    arrayAdapter.notifyDataSetChanged();
+//                    blename.add(newDevice.getName());
+                    bleAddress.add(newDevice.getAddress());
+                    Log.e("BLE", "device found" + newDevice.getAddress());
+                } else {
+                    Log.e("ble", "device found with null name");
+                }
+            }
+        }
+    };
 
     private void startBluetoothDiscovery() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED &&
@@ -463,9 +519,7 @@ public class MainActivity3 extends AppCompatActivity {
         builder.setAdapter(bluetoothArrayAdapter, (dialog, which) -> {
             selectedDevice = deviceList.get(which);
             if (selectedDevice != null) {
-
                 System.out.println(selectedDevice.getAddress());
-
 //                start the serviceclass
                 Intent intent = new Intent(MainActivity3.this, BluetoothService.class);
                 intent.putExtra("device_address", selectedDevice);
@@ -475,7 +529,6 @@ public class MainActivity3 extends AppCompatActivity {
                 deviceList.clear();
                 System.out.println(selectedDevice.getAddress());
                 last_calibrated_data(selectedDevice.getAddress());
-
             } else {
                 Toast.makeText(MainActivity3.this, "Device not found", Toast.LENGTH_SHORT).show();
             }
@@ -531,7 +584,7 @@ public class MainActivity3 extends AppCompatActivity {
             }
             runOnUiThread(() -> {
                 showToast("Calibration completed successfully");
-                last_calibrated_data(selectedDevice.getAddress());
+                last_calibrated_data(Address);
                 calibrate.setText("CALIBRATED");
             });
         } catch (Exception e) {
