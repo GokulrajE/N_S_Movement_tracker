@@ -126,7 +126,7 @@ public class MainActivity4 extends AppCompatActivity {
                     Long time = intent.getLongExtra("time",0);
 //                    Log.d(TAG,"received data"+Arrays.toString(data));
 //                    System.out.println(time);
-                    Log.d(TAG,"received time"+time);
+//                    Log.d(TAG,"received time"+time);
 
                     ReceiveData(data,time);
                 }
@@ -252,7 +252,6 @@ public class MainActivity4 extends AppCompatActivity {
                             start_stop.setText("start");
                             str_sto = true;
                         }
-
                 });
 
         clear.setOnClickListener(new View.OnClickListener() {
@@ -470,6 +469,7 @@ public class MainActivity4 extends AppCompatActivity {
                    offset[0] = jsonObject.getDouble("meanGx");
                    offset[1] = jsonObject.getDouble("meanGy");
                    offset[2] = jsonObject.getDouble("meanGz");
+                   System.out.println(Arrays.toString(offset));
                }
            }
 

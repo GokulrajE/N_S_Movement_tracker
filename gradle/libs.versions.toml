@@ -1,5 +1,8 @@
 [versions]
 agp = "8.5.0"
+anychartAndroid = "1.1.5"
+cardview = "1.0.0"
+commonsMath3 = "3.6.1"
 junit = "4.13.2"
 junitVersion = "1.1.5"
 espressoCore = "3.5.1"
@@ -11,8 +14,12 @@ kotlin = "1.9.0"
 lifecycleRuntimeKtx = "2.6.1"
 activityCompose = "1.9.0"
 composeBom = "2024.04.01"
+mpandroidchart = "v3.1.0"
 
 [libraries]
+anychart-android = { module = "com.github.AnyChart:AnyChart-Android", version.ref = "anychartAndroid" }
+cardview = { module = "androidx.cardview:cardview", version.ref = "cardview" }
+commons-math3 = { module = "org.apache.commons:commons-math3", version.ref = "commonsMath3" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -23,6 +30,7 @@ constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayo
 lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+mpandroidchart = { module = "com.github.PhilJay:MPAndroidChart", version.ref = "mpandroidchart" }
 ui = { group = "androidx.compose.ui", name = "ui" }
 ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }

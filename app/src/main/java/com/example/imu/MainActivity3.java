@@ -16,6 +16,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.Address;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -108,7 +109,7 @@ public class MainActivity3 extends AppCompatActivity {
     private List<Entry> chartDataBuffer1 = new ArrayList<>();
     private List<Entry> chartDataBuffer2 = new ArrayList<>();
     private List<Entry> chartDataBuffer3 = new ArrayList<>();
-    public String Address;
+    public static String Address;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -273,7 +274,7 @@ public class MainActivity3 extends AppCompatActivity {
     }
 
     public static String device(){
-      return selectedDevice.getAddress();
+      return Address;
     }
     private void last_calibrated_data(String device_address){
         new Thread(()->{

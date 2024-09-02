@@ -27,11 +27,10 @@ public class GyroProcessor {
 
     public float rom(short[] data, double[] offset,Long time) {
         double[] doubleData = new double[data.length];
-        double delT;
+        double delT ;
         for (int i = 0; i < data.length; i++) {
             doubleData[i] = (double) data[i];
         }
-
         double[] gyro = Arrays.copyOfRange(doubleData, 0, 3);
         if(Previous_time == 0){
             delT = 1;
