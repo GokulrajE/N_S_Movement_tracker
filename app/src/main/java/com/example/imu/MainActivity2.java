@@ -217,14 +217,6 @@ public class MainActivity2 extends AppCompatActivity {
             return;
         }
 
-// Now create CSV files for each option inside the neck and shoulder folders
-//        createCSVFile(neckFolder, "option1.csv");
-//        createCSVFile(neckFolder, "option2.csv");
-//        createCSVFile(neckFolder, "option3.csv");
-//
-//        createCSVFile(shoulderFolder, "option1.csv");
-//        createCSVFile(shoulderFolder, "option2.csv");
-//        createCSVFile(shoulderFolder, "option3.csv");
 
 
 // Show a toast with the patient's unique ID

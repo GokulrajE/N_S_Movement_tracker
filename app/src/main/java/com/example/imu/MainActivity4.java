@@ -117,24 +117,18 @@ public class MainActivity4 extends AppCompatActivity {
         calibrationData = new ArrayList<>();
         Intent intent = getIntent();
         toneGenerator = new ToneGenerator(AudioManager.STREAM_MUSIC, 100);
+        // To recevice the broadcast data in backgound
         broadcastReceiver = new BroadcastReceiver(){
             @Override
             public void onReceive(Context context, Intent intent) {
-
                 if("sendData".equals(intent.getAction())){
                     short[] data = intent.getShortArrayExtra("data");
                     Long time = intent.getLongExtra("time",0);
-//                    Log.d(TAG,"received data"+Arrays.toString(data));
-//                    System.out.println(time);
-//                    Log.d(TAG,"received time"+time);
-
                     ReceiveData(data,time);
                 }
-
             }
         };
         LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver,new IntentFilter("sendData"));
-
         // Check if the intent has the extra data
         if (intent != null && intent.hasExtra("selectedData")) {
             // Extract the data
@@ -142,7 +136,6 @@ public class MainActivity4 extends AppCompatActivity {
             Log.d(TAG, "Selected data: " + filename);
         }
         dirname = filename.substring(0, 7); // Extract the first 7 characters
-
 // Print to verify
         Log.d("MainActivity3", "First 7 characters: " + dirname);
         int selectedOption = getIntent().getIntExtra("selectedOption", 1);
@@ -211,13 +204,11 @@ public class MainActivity4 extends AppCompatActivity {
             default:
                 imageResource = R.drawable.img1;
         }
-
         ImageView imageView = findViewById(R.id.pic);
         imageView.setImageResource(imageResource);
-       sessionNumber = MainActivity.session_number;
+        sessionNumber = MainActivity.session_number;
         Button start_stop = findViewById(R.id.but);
         start_stop.setBackgroundColor(Color.rgb(76,175,80));
-//        Button stop = findViewById(R.id.stop);
         Button clear = findViewById(R.id.clear);
         movement = findViewById(R.id.text1);
         parts = findViewById(R.id.text2);
@@ -253,7 +244,6 @@ public class MainActivity4 extends AppCompatActivity {
                             str_sto = true;
                         }
                 });
-
         clear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -272,8 +262,7 @@ public class MainActivity4 extends AppCompatActivity {
                 }
             }
         });
-       System.out.println(MainActivity.session_number);
-
+        System.out.println(MainActivity.session_number);
         bluetoothArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
         // Initialize the chart
         lineChart = findViewById(R.id.lineChart);
@@ -285,7 +274,7 @@ public class MainActivity4 extends AppCompatActivity {
         YAxis leftAxis = lineChart.getAxisLeft();
         leftAxis.setDrawGridLines(false);
         leftAxis.setAxisMinimum(0f);
-       leftAxis.setAxisMaximum(200f);
+        leftAxis.setAxisMaximum(200f);
         YAxis rightAxis = lineChart.getAxisRight();
         rightAxis.setEnabled(false);
         rightAxis.setDrawGridLines(false);
@@ -293,7 +282,7 @@ public class MainActivity4 extends AppCompatActivity {
         lineChart.setPinchZoom(true);
         lineChart.invalidate();
     }
-
+    //Display card which shows the movement,angle and
     private  void cardDisplay(){
         movement.setText(Movementdir);
         parts.setText(insidedir);
