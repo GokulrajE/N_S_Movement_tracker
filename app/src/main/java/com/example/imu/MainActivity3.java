@@ -70,6 +70,8 @@ public class MainActivity3 extends AppCompatActivity {
     private static final String TAG = "MainActivity3";
     private static final int REQUEST_ENABLE_BT = 1;
     private static final int REQUEST_PERMISSIONS = 2;
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+    private static final int LOCATION_SETTINGS_REQUEST_CODE = 2;
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothLeScanner bluetoothLeScanner;
     private static BluetoothDevice selectedDevice;
@@ -145,8 +147,9 @@ public class MainActivity3 extends AppCompatActivity {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
+                    ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED ||
                     ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
                     ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED ||
                     ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED ||
@@ -155,6 +158,7 @@ public class MainActivity3 extends AppCompatActivity {
                         new String[]{
                                 android.Manifest.permission.ACCESS_FINE_LOCATION,
                                 android.Manifest.permission.ACCESS_COARSE_LOCATION,
+                                Manifest.permission.ACCESS_BACKGROUND_LOCATION,
                                 android.Manifest.permission.BLUETOOTH_SCAN,
                                 android.Manifest.permission.BLUETOOTH_CONNECT,
                                 android.Manifest.permission.BLUETOOTH_ADMIN
@@ -174,6 +178,7 @@ public class MainActivity3 extends AppCompatActivity {
                 checkLocationServicesAndStartDiscovery();
             }
         }
+
         broadcastReceiver = new BroadcastReceiver() {
 
             @Override
@@ -226,7 +231,7 @@ public class MainActivity3 extends AppCompatActivity {
                             Address = bleAddress.get(position);
                             startService(intent);
                             connect.setText("connecting..");
-                            connect.setTextSize(13f);
+//                            connect.setTextSize(13f);
                             last_calibrated_data(Address);
 //                              startService()
 //                            BluetoothDevice selectedDevice = bleDevices.get(position);
@@ -445,24 +450,50 @@ public class MainActivity3 extends AppCompatActivity {
         lineChart.setPinchZoom(true);
         lineChart.invalidate();
     }
-    private void checkLocationServicesAndStartDiscovery() {
-        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        if (locationManager != null && !locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            new AlertDialog.Builder(this)
-                    .setTitle("Enable Location")
-                    .setMessage("Location services are required for Bluetooth scanning. Please enable location services.")
-                    .setPositiveButton("Settings", (dialog, which) -> {
-                        Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                        startActivity(intent);
-                    })
-                    .setNegativeButton("Cancel", null)
-                    .show();
+//    private void checkLocationServicesAndStartDiscovery() {
+//        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+//        if (locationManager != null && !locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+//            new AlertDialog.Builder(this)
+//                    .setTitle("Enable Location")
+//                    .setMessage("Location services are required for Bluetooth scanning. Please enable location services.")
+//                    .setPositiveButton("Settings", (dialog, which) -> {
+//                        Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+//                        startActivity(intent);
+//                    })
+//                    .setNegativeButton("Cancel", null)
+//                    .show();
+//        } else {
+////            startBluetoothDiscovery();
+//            startBleScan();
+//
+//        }
+//    }
+private void checkLocationServicesAndStartDiscovery() {
+    // Check if location services are enabled
+    LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+    if (locationManager != null && !locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+        // Prompt user to enable location services
+        new AlertDialog.Builder(this)
+                .setTitle("Enable Location")
+                .setMessage("Location services are required for Bluetooth scanning. Please enable location services.")
+                .setPositiveButton("Settings", (dialog, which) -> {
+                    Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    startActivityForResult(intent, LOCATION_SETTINGS_REQUEST_CODE);
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    } else {
+        // Check and request location permissions
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    LOCATION_PERMISSION_REQUEST_CODE);
         } else {
-//            startBluetoothDiscovery();
+            // Location permissions granted, start BLE scan
             startBleScan();
-
         }
     }
+}
     private void startBleScan() {
         bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
         if (bluetoothLeScanner != null) {

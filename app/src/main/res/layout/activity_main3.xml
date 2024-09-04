@@ -36,7 +36,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/connect"
             android:text="connect"
-            android:layout_marginLeft="230dp"
+            android:layout_marginLeft="220dp"
             android:textAllCaps="true"
             android:textSize="20sp"/>
     </RelativeLayout>

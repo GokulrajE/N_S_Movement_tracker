@@ -290,7 +290,6 @@ public class MainActivity4 extends AppCompatActivity {
         float anglev = lineData.getYMax();
         an_dis = String.format("%.2f", anglev) ;
         angle.setText(an_dis);
-
     }
     private String currentDate() {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
@@ -364,13 +363,24 @@ public class MainActivity4 extends AppCompatActivity {
        new Thread(()->{
            File mainFolder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "imupatientdata");
            File dirnameFolder = new File(mainFolder, dirname);
+           String[] header = {"session", "Data","Type","File_path_to_raw_data","Angle"};
            File AssementFile = new File(dirnameFolder,"Assessment.csv");
+           boolean isNewFile = !AssementFile.exists();
            String date = currentDate();
            String type = insidedir+"/"+Movementdir;
            String file_path = csvFile.getAbsolutePath();
           String data = sessionNumber+","+date+","+type+","+file_path+","+an_dis;
           Log.d("Assessment data",data);
            try (FileWriter writer = new FileWriter(AssementFile, true)) {
+               if (isNewFile) {
+                   for (int i = 0; i < header.length; i++) {
+                       writer.append(header[i]);
+                       if (i < header.length - 1) {
+                           writer.append(",");
+                       }
+                   }
+                   writer.append("\n");
+               }
                writer.append(data).append("\n");
                writer.flush();
                writer.close();
@@ -387,12 +397,14 @@ public class MainActivity4 extends AppCompatActivity {
             csvDataBuffer.clear();
 
             new Thread(() -> {
+                String[] header = {"gx", "gy","gz","Gyro_Angle"};
                 File mainFolder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "imupatientdata");
                 File dirnameFolder = new File(mainFolder, dirname);
                 File Raw_data_folder = new File(dirnameFolder,"Raw_Data");
                 File insideDirFolder = new File(Raw_data_folder, insidedir);
                 File movementFolder= new File(insideDirFolder, Movementdir);
-                 csvFile=new File(movementFolder,fname);
+                csvFile=new File(movementFolder,fname);
+                boolean isNewFile = !csvFile.exists();
 
                 if (!csvFile.exists()) {
 
@@ -405,6 +417,15 @@ public class MainActivity4 extends AppCompatActivity {
                 }
 
                 try (FileWriter writer = new FileWriter(csvFile, true)) {
+                    if (isNewFile) {
+                        for (int i = 0; i < header.length; i++) {
+                            writer.append(header[i]);
+                            if (i < header.length - 1) {
+                                writer.append(",");
+                            }
+                        }
+                        writer.append("\n");
+                    }
                     for (String data : dataToWrite) {
                         writer.append(data);
                     }

@@ -123,9 +123,13 @@ public class BluetoothService extends Service {
 
                             return;
                         }
+                        Log.d("BLE", "Service discovered: " + (service != null));
+                        Log.d("BLE", "Characteristic discovered: " + (characteristic != null));
+                        System.out.println("serveice working");
                         gatt.setCharacteristicNotification(characteristic, true);
                         BluetoothGattDescriptor descriptor = characteristic.getDescriptor(UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"));
                         if (descriptor != null) {
+                            System.out.println("discriptor working");
                             descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
                             gatt.writeDescriptor(descriptor);
                         }
@@ -134,11 +138,10 @@ public class BluetoothService extends Service {
             }
         }
 
-        //        //call`s when data received from ble device
         @Override
-        public void onCharacteristicChanged(@NonNull BluetoothGatt gatt, @NonNull BluetoothGattCharacteristic characteristic, @NonNull byte[] value) {
-            super.onCharacteristicChanged(gatt, characteristic, value);
-
+        public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+            super.onCharacteristicChanged(gatt, characteristic);
+            byte[] value = characteristic.getValue();
 //            Log.d("onCharacteristicChanged", "Received data: " + Arrays.toString(value));
             if (value.length >= 10) {
                 byte[] xvalue = Arrays.copyOfRange(value,0,2);
@@ -156,7 +159,7 @@ public class BluetoothService extends Service {
                  data[2] = z;
                 sendBroadcastData(data,epochValue);
 //                sendBroadcastData(epochValue);
-//                System.out.println(x+" "+y+" "+z+" "+epochValue);
+//               System.out.println(x+" "+y+" "+z+" "+epochValue);
             }
         }
     };

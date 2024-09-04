@@ -211,8 +211,11 @@ public class review extends AppCompatActivity {
             if (AssesmentFile.exists()) {
                 try  {
                     BufferedReader bufferedReader = new BufferedReader(new FileReader(AssesmentFile));
-                    String line;
-                    while ((line = bufferedReader.readLine()) != null) {
+                    String line = bufferedReader.readLine();
+                    if(line!= null && line.contains("session")){
+                        line = bufferedReader.readLine();
+                    }
+                    while (line  != null) {
                         // Add each uniqueId to the suggestions list
                         String [] parts = line.split(",");
                         String [] type = parts[2].split("/");
@@ -233,6 +236,7 @@ public class review extends AppCompatActivity {
                             }
 
                         }
+                        line = bufferedReader.readLine();
 
                     }
                     for (Map.Entry<Integer, List<Float>> entry : angleMap.entrySet()) {
