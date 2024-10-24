@@ -201,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
             if (data != null) {
                 String newUniqueId = data.getStringExtra("NewUniqueId");
                 if (newUniqueId != null) {
-                    autoCompleteTextViewUniqueId.setText(newUniqueId);
+//                    autoCompleteTextViewUniqueId.setText(newUniqueId);
                     updateAutoCompleteSuggestions(); // Reload array adapter
                 }
             }

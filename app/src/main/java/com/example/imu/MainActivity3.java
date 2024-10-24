@@ -4,7 +4,6 @@ package com.example.imu;
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
@@ -16,19 +15,14 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.location.Address;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,8 +33,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.github.mikephil.charting.charts.LineChart;
@@ -50,20 +42,12 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 
-import org.apache.commons.math3.analysis.function.Add;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.lang.reflect.Method;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 public class MainActivity3 extends AppCompatActivity {
@@ -75,6 +59,7 @@ public class MainActivity3 extends AppCompatActivity {
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothLeScanner bluetoothLeScanner;
     private static BluetoothDevice selectedDevice;
+    public static  int sampleFrequency = 500;
     private ArrayList<BluetoothDevice> deviceList = new ArrayList<>();
     private ArrayAdapter<String> bluetoothArrayAdapter;
     private AlertDialog alertDialog;
@@ -85,6 +70,8 @@ public class MainActivity3 extends AppCompatActivity {
     private String receivedData;
     boolean isconnected = false;
     TextView lastcalibrated;
+    TextView xlable;
+    TextView ylable;
     boolean isReceiverRegistered;
     List<String> bleAddress;
     Button connect;
@@ -137,6 +124,10 @@ public class MainActivity3 extends AppCompatActivity {
         startprogress = findViewById(R.id.startprogress);
         startprogress.setVisibility(View.GONE);
         setup();
+        xlable = findViewById(R.id.xAxisLabel);
+        ylable = findViewById(R.id.yAxisLabel);
+        xlable.setVisibility(View.GONE);
+        ylable.setVisibility(View.GONE);
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         bluetoothArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
         if (bluetoothAdapter == null) {
@@ -255,7 +246,17 @@ public class MainActivity3 extends AppCompatActivity {
                     Tocalibrate = true;
                     startprogress.setVisibility(View.GONE);
                     chart.setVisibility(View.VISIBLE);
+                    xlable.setVisibility(View.VISIBLE);
+                    ylable.setVisibility(View.VISIBLE);
                     calibrate.setText("CALIBRATING..");
+                    if (lineChart != null && lineData != null) {
+
+                        lineChart.clear();
+                        lineData.clearValues();
+                        chartEntries1.clear();
+                        chartEntries2.clear();
+                        chartEntries3.clear();
+                    }
                 }
                 else {
                     showToast("connect to device");
@@ -338,9 +339,10 @@ public class MainActivity3 extends AppCompatActivity {
             float gx = data[0];
             float gy = data[1];
             float gz = data[2];
-            chartDataBuffer1.add(new Entry(mxvalue, gx));
-            chartDataBuffer2.add(new Entry(mxvalue, gy));
-            chartDataBuffer3.add(new Entry(mxvalue, gz));
+            float xTime =  (mxvalue/ sampleFrequency);
+            chartDataBuffer1.add(new Entry(xTime, gx));
+            chartDataBuffer2.add(new Entry(xTime, gy));
+            chartDataBuffer3.add(new Entry(xTime, gz));
             mxvalue++;
             updateChart();
         }
@@ -358,8 +360,8 @@ public class MainActivity3 extends AppCompatActivity {
                     chartEntries2.addAll(newEntries2);
                     chartEntries3.addAll(newEntries3);
                     lineDataSet1 = new LineDataSet(chartEntries1, "gX");
-                    lineDataSet2 = new LineDataSet(chartEntries2, "gY Data");
-                    lineDataSet3 = new LineDataSet(chartEntries3, "gZ Data");
+                    lineDataSet2 = new LineDataSet(chartEntries2, "gY");
+                    lineDataSet3 = new LineDataSet(chartEntries3, "gZ");
                     lineData = new LineData(lineDataSet1,lineDataSet2,lineDataSet3);
                     lineDataSet1.setLineWidth(2);
                     lineDataSet1.setDrawCircles(false);
@@ -403,6 +405,7 @@ public class MainActivity3 extends AppCompatActivity {
               float max = Math.max(Math.max(sdx, sdy), sdz);
               if (max < 1) {
                   calculateAndStoreCalibrationData(calibrationData,Address);
+                  mxvalue = 0;
               }else{
                   runOnUiThread(new Runnable() {
                       @Override
@@ -414,6 +417,7 @@ public class MainActivity3 extends AppCompatActivity {
                           chartEntries1.clear();
                           chartEntries2.clear();
                           chartEntries3.clear();
+                          mxvalue = 0;
                       }
                   });
               }
@@ -439,7 +443,8 @@ public class MainActivity3 extends AppCompatActivity {
         XAxis xAxis = lineChart.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setDrawAxisLine(false);
-        xAxis.setDrawLabels(false);
+
+        lineChart.getDescription().setEnabled(false); // Disable the description
         YAxis leftAxis = lineChart.getAxisLeft();
         leftAxis.setDrawGridLines(false);
         leftAxis.setDrawLabels(true);

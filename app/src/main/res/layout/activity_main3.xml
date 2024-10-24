@@ -49,6 +49,7 @@
         android:background="@drawable/shadow"
         android:layout_marginTop="20dp"
         android:layout_below="@id/title1">
+
         <androidx.cardview.widget.CardView
             android:layout_width="389dp"
             android:layout_height="wrap_content"
@@ -64,15 +65,41 @@
                 android:layout_height="match_parent"
                 android:background="@drawable/button"
                 >
-
                 <com.github.mikephil.charting.charts.LineChart
                     android:id="@+id/lineChart"
-                    android:layout_width="match_parent"
+                    android:layout_width="350dp"
                     android:layout_height="350dp"
+                    android:layout_marginLeft="30dp"
                     android:layout_marginTop="16dp" />
+                <TextView
+                    android:id="@+id/xAxisLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/lineChart"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="15dp"
+                    android:text="Time(S)"
+                    android:textSize="10sp"
+                    android:textColor="#000000" />
+
+                <!-- Y-Axis Label (e.g., Weight) rotated for vertical display -->
+                <TextView
+                    android:id="@+id/yAxisLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="0dp"
+                    android:layout_marginLeft="0dp"
+                    android:rotation="-90"
+                    android:text="AV(°/s)"
+                    android:textSize="10sp"
+                    android:textColor="#000000" />
             </RelativeLayout>
 
         </androidx.cardview.widget.CardView>
+
         <TextView
             android:id="@+id/lastcalibrate"
             android:layout_marginTop="10dp"

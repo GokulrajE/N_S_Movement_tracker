@@ -1,23 +1,16 @@
 package com.example.imu;
 
 import android.Manifest;
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.location.LocationManager;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -25,15 +18,9 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.github.mikephil.charting.charts.LineChart;
@@ -44,21 +31,13 @@ import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import org.json.JSONObject;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Writer;
-import java.lang.reflect.Array;
-import java.lang.reflect.Method;
-import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
+
 import android.os.Environment;
 import java.io.File;
 import java.io.FileWriter;
@@ -85,6 +64,8 @@ public class MainActivity4 extends AppCompatActivity {
     TextView movement;
     TextView parts;
     TextView angle;
+    TextView xlable;
+    TextView ylable;
     float gxsum=0;
     float gysum=0;
     float gzsum=0;
@@ -213,10 +194,16 @@ public class MainActivity4 extends AppCompatActivity {
         movement = findViewById(R.id.text1);
         parts = findViewById(R.id.text2);
         angle = findViewById(R.id.text3);
+        xlable = findViewById(R.id.xAxisLabel);
+        ylable = findViewById(R.id.yAxisLabel);
+        xlable.setVisibility(View.GONE);
+        ylable.setVisibility(View.GONE);
         str_sto = true;
         start_stop.setOnClickListener(v -> {
                         if(str_sto) {
                             ToCalibrate=true;
+                            xlable.setVisibility(View.VISIBLE);
+                            ylable.setVisibility(View.VISIBLE);
                             offset = loadCalibrationData();
                             fname = createfilename();
                             ToUpdate = true;
@@ -256,6 +243,8 @@ public class MainActivity4 extends AppCompatActivity {
                         movement.setText("movement");
                         parts.setText("Parts");
                         angle.setText("Angle");
+                        xlable.setVisibility(View.GONE);
+                        ylable.setVisibility(View.GONE);
                         Toclear = false;
                     }
 
@@ -270,6 +259,7 @@ public class MainActivity4 extends AppCompatActivity {
         // Customize the chart
         XAxis xAxis = lineChart.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        lineChart.getDescription().setEnabled(false); // Disable the description
         xAxis.setDrawAxisLine(false);
         YAxis leftAxis = lineChart.getAxisLeft();
         leftAxis.setDrawGridLines(false);
@@ -339,7 +329,8 @@ public class MainActivity4 extends AppCompatActivity {
                toneGenerator.startTone(ToneGenerator.TONE_DTMF_1, 150);
               }
            }
-           chartDataBuffer.add(new Entry(mxvalue, gyroAng));
+           float xTime =  (mxvalue/MainActivity3.sampleFrequency);
+           chartDataBuffer.add(new Entry(xTime, gyroAng));
            csvDataBuffer.add(gx + "," + gy + "," + gz + "," + gyroAng + "\n");
            mxvalue++;
            updateChart();
